@@ -1,0 +1,6 @@
+#!/home/axel/Python/madmom/env/bin/python
+# EASY-INSTALL-DEV-SCRIPT: 'madmom==0.16.dev0','CNNOnsetDetector'
+__requires__ = 'madmom==0.16.dev0'
+__import__('pkg_resources').require('madmom==0.16.dev0')
+__file__ = '/home/axel/Python/madmom/bin/CNNOnsetDetector'
+exec(compile(open(__file__).read(), __file__, 'exec'))
