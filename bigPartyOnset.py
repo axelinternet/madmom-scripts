@@ -19,7 +19,13 @@
 from __future__ import absolute_import, division, print_function
 
 import csv
+import argparse
+
+from pprint import pprint
+from tqdm import tqdm
+
 from CNNProcessorScript import CNNProcess
+from SuperFluxProcessorScipt import SuperFluxProcess
 from madmom.evaluation.onsets import OnsetEvaluation 
 
 def print_results(arr):
@@ -85,38 +91,34 @@ def detect_notes(processor):
     # Handle array of processors
     if isinstance(processor, list):
         all_processors_results = {}
-        for p in processor:
-            stats, filename = p()
+        print('Processing audio')
+        for p in tqdm(processor):
+            stats, filename, processor_name = p()
             try:
-                all_processors_results[filename].append(stats)
+                all_processors_results[filename].append({processor_name: stats})
             except KeyError:
-                all_processors_results[filename] = [stats]
-        return all_processors_results
+                all_processors_results[filename] = [{processor_name: stats}]
+        return all_processors_results, filename
     # or just return the result of the processor
     return processor()
+
+
 if __name__ == '__main__':
+
+    
     total_stats = []
     
     # Detect notes using algorithm (the heavy part)
-    detected_notes_array, loaded_filename = detect_notes(CNNProcess)
+    processed_notes, loaded_filename = detect_notes([SuperFluxProcess, CNNProcess])
     
     # Load annotaded data
     annotated_notes = read_annotated_data(loaded_filename)
 
-    # Evaluate results
-    CNN_stats = OnsetEvaluation(detected_notes_array, annotated_notes)
-    total_stats.append(CNN_stats)
+    # Evaluate results and add to total stats
+    for processor in processed_notes[loaded_filename]:
+        total_stats.append(OnsetEvaluation(list(processor.items())[0][1], annotated_notes))
     
     print_results(total_stats)
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     

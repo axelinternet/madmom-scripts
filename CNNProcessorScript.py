@@ -46,5 +46,5 @@ def CNNProcess():
     processed_by_CNN = CNNProc(args.infile)
     peak_picker_proc = OnsetPeakPickingProcessor(**vars(args))
     detected_notes_array = peak_picker_proc.process_sequence(processed_by_CNN)
-    return detected_notes_array, p.parse_args().infile.name.strip("BassDrumsSax_Single")[1:] 
+    return detected_notes_array, p.parse_args().infile.name.strip("BassDrumsSax_Single")[1:], 'CNNProcess'
     

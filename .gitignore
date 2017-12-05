@@ -1,0 +1,5 @@
+env/
+jazzData.csv
+BassDrumsSax_Single/
+__pycache__/
+*.pyc
