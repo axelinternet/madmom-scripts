@@ -7,7 +7,8 @@
 
 1. Functionality for more onset detectors.
 
-2. Save to big-ass file.
+2. Save to big-ass file. (Check the not used
+bin scripts that have an args.save if-else thingy)
 
 3. Talk to the man
 
@@ -26,11 +27,19 @@ from tqdm import tqdm
 
 from CNNProcessorScript import CNNProcess
 from SuperFluxProcessorScipt import SuperFluxProcess
+from ComplexFluxProcessorScript import ComplexFluxProcess
+from OnsetDetectorProcessorScript import OnsetDetectorProcess
+
+
 from madmom.evaluation.onsets import OnsetEvaluation 
 
-def print_results(arr):
+def print_results(arr,name):
+    j = 0
+
+    print('\nResults:\n')
     for i in arr:
-        print(i)
+        print(name[j] + ': \n', i)
+        j += 1
     
 def read_annotated_data(filename, print_mode = False):
     """
@@ -109,16 +118,16 @@ if __name__ == '__main__':
     total_stats = []
     
     # Detect notes using algorithm (the heavy part)
-    processed_notes, loaded_filename = detect_notes([SuperFluxProcess, CNNProcess])
+    processed_notes, loaded_filename = detect_notes([SuperFluxProcess, CNNProcess, ComplexFluxProcess, OnsetDetectorProcess])
     
     # Load annotaded data
     annotated_notes = read_annotated_data(loaded_filename)
 
-    # Evaluate results and add to total stats
+    # Evaluate results and add to total stats 
     for processor in processed_notes[loaded_filename]:
         total_stats.append(OnsetEvaluation(list(processor.items())[0][1], annotated_notes))
     
-    print_results(total_stats)
+    print_results(total_stats, ['SuperFluxProcess', 'CNNProcess', 'ComplexFluxProcess', 'OnsetDetectorProcess'])
     
     
     
