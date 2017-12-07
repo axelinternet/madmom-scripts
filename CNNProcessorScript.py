@@ -21,7 +21,7 @@ Namespace(combine=0.03, delay=0.0, fps=100,
     verbose=None)
 """
     
-def CNNProcess():
+def CNNProcess(filename):
     # define parser
     p = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -43,8 +43,8 @@ def CNNProcess():
     
     # use a CNN to predict the onsets
     CNNProc = CNNOnsetProcessor(**vars(args))
-    processed_by_CNN = CNNProc(args.infile)
+    processed_by_CNN = CNNProc(filename)
     peak_picker_proc = OnsetPeakPickingProcessor(**vars(args))
     detected_notes_array = peak_picker_proc.process_sequence(processed_by_CNN)
-    return detected_notes_array, p.parse_args().infile.name.strip("BassDrumsSax_Single")[1:], 'CNNProcess'
+    return detected_notes_array, 'CNNProcess'
     

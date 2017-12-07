@@ -6,8 +6,8 @@ from madmom.features import ActivationsProcessor
 from madmom.features.onsets import RNNOnsetProcessor, OnsetPeakPickingProcessor
 
 
-def OnsetDetectorProcess():
-    """OnsetDetector"""
+def OnsetDetectorProcess(filename):
+    """OnsetDetector using RNN"""
 
     # define parser
     p = argparse.ArgumentParser(
@@ -31,12 +31,12 @@ def OnsetDetectorProcess():
 
     # use a RNN to predict the onsets
     rnn_onsets_proc = RNNOnsetProcessor(**vars(args))
-    processed_by_rnn = rnn_onsets_proc(args.infile)
+    processed_by_rnn = rnn_onsets_proc(filename)
 
     # perform peak picking on the onset activations
     peak_picking_proc = OnsetPeakPickingProcessor(**vars(args))
 
     detected_notes_array = peak_picking_proc.process_sequence(processed_by_rnn)
 
-    return detected_notes_array, p.parse_args().infile.name.strip("BassDrumsSax_Single")[1:], 'SuperFluxProcess'
+    return detected_notes_array, 'SuperFluxProcess'
 

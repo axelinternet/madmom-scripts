@@ -10,7 +10,7 @@ from madmom.features.onsets import (SpectralOnsetProcessor,
                                     OnsetPeakPickingProcessor)
 
 
-def SuperFluxProcess():
+def SuperFluxProcess(filename):
     p = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
@@ -37,8 +37,8 @@ def SuperFluxProcess():
     args.filterbank = LogarithmicFilterbank
 
     spectral_proc = SpectralOnsetProcessor(**vars(args))
-    processed_by_spectral = spectral_proc(args.infile)
+    processed_by_spectral = spectral_proc(filename)
     peak_picking_proc = OnsetPeakPickingProcessor(**vars(args))
     detected_notes_array = peak_picking_proc.process_sequence(processed_by_spectral)
 
-    return detected_notes_array, p.parse_args().infile.name.strip("BassDrumsSax_Single")[1:], 'SuperFluxProcess'
+    return detected_notes_array, 'SuperFluxProcess'
