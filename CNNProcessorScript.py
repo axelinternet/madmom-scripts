@@ -21,7 +21,7 @@ Namespace(combine=0.03, delay=0.0, fps=100,
     verbose=None)
 """
     
-def CNNProcess(filename):
+def CNNProcess(filename, threshold=0.54, smooth=0.05):
     # define parser
     p = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -31,7 +31,7 @@ def CNNProcess(filename):
     # signal processing arguments
     SignalProcessor.add_arguments(p, norm=False, gain=0)
     # peak picking arguments
-    OnsetPeakPickingProcessor.add_arguments(p, threshold=0.54, smooth=0.05)
+    OnsetPeakPickingProcessor.add_arguments(p, threshold, smooth)
 
     # parse arguments
     args = p.parse_args()

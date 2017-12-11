@@ -6,7 +6,7 @@ from madmom.features import ActivationsProcessor
 from madmom.features.onsets import RNNOnsetProcessor, OnsetPeakPickingProcessor
 
 
-def OnsetDetectorProcess(filename):
+def OnsetDetectorProcess(filename, threshold=0.35, smooth=0.07):
     """OnsetDetector using RNN"""
 
     # define parser
@@ -19,7 +19,7 @@ def OnsetDetectorProcess(filename):
     # signal processing arguments
     SignalProcessor.add_arguments(p, norm=False, gain=0)
     # peak picking arguments
-    OnsetPeakPickingProcessor.add_arguments(p, threshold=0.35, smooth=0.07)
+    OnsetPeakPickingProcessor.add_arguments(p, threshold, smooth)
 
     # parse arguments
     args = p.parse_args()

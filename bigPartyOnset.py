@@ -7,7 +7,7 @@
 
 [X] 1. Functionality for more onset detectors.
 
-[ ] 2. Variable parameters
+[X] 2. Variable parameters
        Add them as parameters from this file instead.
 
 [ ] 3. Save to big-ass file.
@@ -41,6 +41,10 @@ from madmom.evaluation.onsets import OnsetEvaluation
 
 SOUND_FOLDER = 'BassDrumsSax_Single/'
 ONSET_METHODS = ['SuperFluxProcess', 'CNNProcess', 'ComplexFluxProcess', 'OnsetDetectorProcess (RNN)']
+THRESHOLD = 0.8
+
+
+
 def print_single_result(arr,name, filename):
     j = 0
     print('\nResults for {}:\n'.format(filename))
@@ -85,23 +89,10 @@ def read_annotated_data(filename, print_mode = False):
                 annotated_notes.append(note[1])
     return annotated_notes
     
-def save_results_to_file(results_list):
+def save_results_to_file(results_list, threshold):
     """
     Saves the results for one file using four different onset detectionmethods
     to disk in a csv format.
-
-    These are the things that OnsetEvaluation returns. 
-    
-    self.num_annotations, self.num_tp, self.num_fp, self.num_fn,
-                self.precision, self.recall, self.fmeasure,
-                self.mean_error * 1000., self.std_error * 1000.)
-
-    
-    A csv structure could look something like this: 
-    "annotations", "tp", ...,  
-    num_annotations, num_tp, ... , ... 
-    num_annotations, num_tp, ... , ... 
-    
     """
     nr = 0
     foundPath = False
@@ -111,7 +102,7 @@ def save_results_to_file(results_list):
                 foundPath = True
                 stats_writer = csv.writer(csvfile, delimiter=',', quotechar='|')
                 # Write header row
-                stats_writer.writerow(['filename','onset_method', 'num_annotations','num_tp','num_fp','num_fn','precision','recall','fmeasure','mean_error','std_error'])
+                stats_writer.writerow(['filename','onset_method', 'num_annotations','num_tp','num_fp','num_fn','precision','recall','fmeasure','mean_error','std_error','threshold'])
                 for result in results_list:
                     for i, onset_specific_result in enumerate(list(result.values())[0]):
                         stats_writer.writerow([ str(list(result.keys())[0]).strip('.wav'),
@@ -124,16 +115,24 @@ def save_results_to_file(results_list):
                             float(onset_specific_result['recall']),
                             float(onset_specific_result['fmeasure']),
                             float(onset_specific_result['mean_error']),
-                            float(onset_specific_result['std_error'])])
+                            float(onset_specific_result['std_error']),
+                            float(threshold)])
         else:
             nr +=1;
 
-def detect_notes(processor, filename):
-    # Handle array of processors
+def detect_notes(processor, filename, threshold):
+    """ 
+        ##  Detect onsets using one or many processors. 
+        
+        Every processor takes a number of arguments. See each processor script file to see what
+        parameters can be adjusted. Added threshold as a argument to this function so that is easy
+        to adjust. More could be added later in the same manner.
+
+    """
     if isinstance(processor, list):
         all_processors_results = {}
         for p in processor:
-            stats, processor_name = p(filename)
+            stats, processor_name = p(filename, threshold=threshold)
             try:
                 all_processors_results[filename.strip("BassDrumsSax_Single")[1:]].append({processor_name: stats})
             except KeyError:
@@ -146,7 +145,10 @@ def analyze_clip(sound_folder, filename, verbose=False):
     clip_stats = []
     
     # Detect notes using algorithm (the heavy part)
-    processed_notes = detect_notes([SuperFluxProcess, CNNProcess, ComplexFluxProcess, OnsetDetectorProcess], sound_folder + filename)
+    processed_notes = detect_notes([SuperFluxProcess, 
+        CNNProcess, 
+        ComplexFluxProcess, 
+        OnsetDetectorProcess], sound_folder + filename, THRESHOLD)
     
     # Load annotaded data
     annotated_notes = read_annotated_data(filename)
@@ -171,13 +173,19 @@ def analyze_clip(sound_folder, filename, verbose=False):
     return clip_stats
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='Detect jazz onsets using madmom.')
+    parser.add_argument('--start', dest='start', default=0.5, type=float,
+                        help='Set the min of the range of thresholds to evaluate. (In .1 increments)')
+    parser.add_argument('--stop', dest='stop', default=0.1, type=float,
+                        help='Set the max of the range of thresholds to evaluate. (In .1 increments)')
+
+    args = parser.parse_args()
+
     total_stats = []
     current_run = []
-    for i in clips:
-        if 'SaxMic' in i:
-            current_run.append(i)
 
-    for clip in tqdm(clips):
+    for clip in tqdm(clips[0:2]):
        total_stats.append({clip: analyze_clip(SOUND_FOLDER, clip)})
     
-    save_results_to_file(total_stats)
+    save_results_to_file(total_stats, args.start)

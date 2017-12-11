@@ -10,7 +10,9 @@ from madmom.features.onsets import (SpectralOnsetProcessor,
                                     OnsetPeakPickingProcessor)
 
 
-def ComplexFluxProcess(filename):
+def ComplexFluxProcess(filename, threshold=0.25, pre_max=0.01,
+                                            post_max=0.05, pre_avg=0.15,
+                                            post_avg=0, combine=0.03, delay=0):
     p = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
@@ -23,9 +25,9 @@ def ComplexFluxProcess(filename):
     LogarithmicSpectrogramProcessor.add_arguments(p, log=True, mul=1, add=1)
     SpectrogramDifferenceProcessor.add_arguments(p, diff_ratio=0.5,
                                                  diff_max_bins=3)
-    OnsetPeakPickingProcessor.add_arguments(p, threshold=0.25, pre_max=0.01,
-                                            post_max=0.05, pre_avg=0.15,
-                                            post_avg=0, combine=0.03, delay=0)
+    OnsetPeakPickingProcessor.add_arguments(p, threshold, pre_max,
+                                            post_max, pre_avg,
+                                            post_avg, combine, delay)
 
     args = p.parse_args()
 
