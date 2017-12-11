@@ -44,7 +44,6 @@ ONSET_METHODS = ['SuperFluxProcess', 'CNNProcess', 'ComplexFluxProcess', 'OnsetD
 THRESHOLD = 0.8
 
 
-
 def print_single_result(arr,name, filename):
     j = 0
     print('\nResults for {}:\n'.format(filename))
@@ -174,18 +173,16 @@ def analyze_clip(sound_folder, filename, verbose=False):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Detect jazz onsets using madmom.')
-    parser.add_argument('--start', dest='start', default=0.5, type=float,
-                        help='Set the min of the range of thresholds to evaluate. (In .1 increments)')
-    parser.add_argument('--stop', dest='stop', default=0.1, type=float,
-                        help='Set the max of the range of thresholds to evaluate. (In .1 increments)')
-
-    args = parser.parse_args()
-
     total_stats = []
     current_run = []
+    threshold_range = (0.1, 1.0)
 
-    for clip in tqdm(clips[0:2]):
-       total_stats.append({clip: analyze_clip(SOUND_FOLDER, clip)})
-    
-    save_results_to_file(total_stats, args.start)
+    THRESHOLD = threshold_range[0]
+    while THRESHOLD <= threshold_range[1]:
+        print('Running onset detection with {} as threshold'.format(THRESHOLD))
+        for clip in tqdm(clips[0:2]):
+           total_stats.append({clip: analyze_clip(SOUND_FOLDER, clip)})
+        
+        save_results_to_file(total_stats, THRESHOLD)
+
+        THRESHOLD += 0.1

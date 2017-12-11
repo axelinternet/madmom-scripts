@@ -10,4 +10,5 @@ Scripts for evaluating different parameters of onset detection with Madmom.
 
 ## Usage
 
-bigPartyOnset runs the scripts to load annotaded data & run algorithms.
+bigPartyOnset runs the scripts to load annotaded data & run algorithms. Setup what range of thresholds to analyze with in the main function of bigPartyOnset. 
+
