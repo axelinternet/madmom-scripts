@@ -172,13 +172,11 @@ def analyze_clip(sound_folder, filename, verbose=False):
     return clip_stats
 
 if __name__ == '__main__':
-
-    total_stats = []
-    current_run = []
-    threshold_range = (0.1, 1.0)
+    threshold_range = (0.1, 0.2)
 
     THRESHOLD = threshold_range[0]
     while THRESHOLD <= threshold_range[1]:
+        total_stats = []
         print('Running onset detection with {} as threshold'.format(THRESHOLD))
         for clip in tqdm(clips[0:2]):
            total_stats.append({clip: analyze_clip(SOUND_FOLDER, clip)})
@@ -186,3 +184,4 @@ if __name__ == '__main__':
         save_results_to_file(total_stats, THRESHOLD)
 
         THRESHOLD += 0.1
+    
