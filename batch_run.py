@@ -5,7 +5,7 @@ import os
 
 from tqdm import tqdm
 from clips_list import clips
-
+from mixdown_list import mixdown_clips
 from madmom.evaluation.onsets import OnsetEvaluation 
 
 """
@@ -53,11 +53,13 @@ def read_annotated_data(filename):
     """
         Reading csv data and matching rows according to the filename.
     """ 
+    print('filename>::::', filename)
     bassist = filename[1]
     drummer = filename[4]
     phrase = filename[10]
     version = filename[12]
     track = filename[13:-4]
+
     if track == "BassPick":
         track = "BassTrack"
     elif track == "SaxMic": 
@@ -76,9 +78,18 @@ def read_annotated_data(filename):
                 annotated_notes.append(note[1])
     return annotated_notes
 
-def analyze_clip(filename, processed_notes):
+def analyze_clip(filename, processed_notes, i):
     clip_stats = []
-
+   
+    if i:
+        if i == 0:
+            filename = filename[:-4] + "BassPick.wav"
+        elif i == 1:
+            filename = filename[:-4] + "SaxMic.wav"
+        elif i == 2:
+            filename = filename[:-4] + "DrL.wav"
+        elif i == 3:
+            filename = filename[:-4] + "DrR.wav"
     # Load annotaded data
     annotated_notes = read_annotated_data(filename)
     # Evaluate results and add to total stats 
@@ -98,58 +109,64 @@ def analyze_clip(filename, processed_notes):
     
     return clip_stats
 
-""" NEW FUNKY SCRIPTS """
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Find some onsets in some jazz')
+    parser.add_argument('--method', dest='method', type=str,
+                        help='What sort of flux would you like?',
+                        default="ComplexFlux")
+    parser.add_argument('--test', dest='test', type=int,
+                        help='How many clips would you like to test?',
+                        default=False)
+    parser.add_argument('--save', dest='save', type=bool,
+                        help='Save results to file, True/False',
+                        default=False)
+    parser.add_argument('--verbose', dest='verbose', type=bool,
+                        help='Print results, True/False',
+                        default=False)
+    parser.add_argument('--ignore', dest='ignore', type=bool,
+                        help='Do nothing',
+                        default=False)
+    parser.add_argument('--mixdown', dest='mixdown', type=bool,
+                        help='Do nothing',
+                        default=False)
 
-PATH = "BassDrumsSax_Single/"
-
-parser = argparse.ArgumentParser(description='Find some onsets in some jazz')
-parser.add_argument('--method', dest='method', type=str,
-                    help='What sort of flux would you like?',
-                    default="ComplexFlux")
-parser.add_argument('--test', dest='test', type=int,
-                    help='How many clips would you like to test?',
-                    default=False)
-parser.add_argument('--save', dest='save', type=bool,
-                    help='Save results to file, True/False',
-                    default=False)
-parser.add_argument('--verbose', dest='verbose', type=bool,
-                    help='Print results, True/False',
-                    default=False)
-parser.add_argument('--ignore', dest='ignore', type=bool,
-                    help='Do nothing',
-                    default=False)
-
-args = parser.parse_args()
-
-
-
-
-
-batch_result = []
-
-if args.test: 
-    clips = clips[69:69+args.test]
-threshold = 0.1
-
-for q in tqdm(range(10)):
-    for clip in tqdm(clips):
-        proc_result = subprocess.run(["python",  "env/bin/{}".format(args.method), "-t", str(threshold), "single", "{}{}".format(PATH, clip)],
-            stdout=subprocess.PIPE)
-
-        clean_result = proc_result.stdout.decode("utf-8").split("\n")
-        for i, result in enumerate(clean_result):
-            try:
-                clean_result[i] = float(result)
-            except ValueError:
-                clean_result.pop(i)
-
-        batch_result.append({
-            clip:
-            analyze_clip(clip, clean_result)
-        })
-        
-    save_results_to_file(batch_result, threshold)
+    args = parser.parse_args()
+    if args.mixdown:
+        PATH = "Mixdown/"
+    else:
+        PATH = "BassDrumsSax_Single/"
     batch_result = []
-    threshold = threshold + 0.1
 
-    
+    if args.test: 
+        clips = clips[0:0+args.test]
+    if args.mixdown:
+        clips = mixdown_clips
+    threshold = 0.1
+
+    for q in tqdm(range(10)):
+        for clip in tqdm(clips):
+            proc_result = subprocess.run(["python",  "env/bin/{}".format(args.method), "-t", str(threshold), "single", "{}{}".format(PATH, clip)],
+                stdout=subprocess.PIPE)
+
+            clean_result = proc_result.stdout.decode("utf-8").split("\n")
+            for i, result in enumerate(clean_result):
+                try:
+                    clean_result[i] = float(result)
+                except ValueError:
+                    clean_result.pop(i)
+
+            if args.mixdown:
+                for i in range(4):
+                    batch_result.append({
+                        clip:
+                        analyze_clip(clip, clean_result, i)
+                    })
+            else:
+                batch_result.append({
+                    clip:
+                    analyze_clip(clip, clean_result, i = False)
+                })
+            
+        save_results_to_file(batch_result, threshold)
+        batch_result = []
+        threshold = threshold + 0.1
