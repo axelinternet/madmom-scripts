@@ -59,12 +59,12 @@ def read_annotated_data(filename):
     """
         Reading csv data and matching rows according to the filename.
     """ 
+    print(filename)
     bassist = filename[1]
     drummer = filename[4]
     phrase = filename[10]
     version = filename[12]
     track = filename[13:-4]
-
     if track == "BassPick":
         track = "BassTrack"
     elif track == "SaxMic": 
@@ -73,20 +73,18 @@ def read_annotated_data(filename):
         track = 'DrumTrack'
     elif track == 'DrR':
         track = 'DrumTrack'
-    
     with open('jazzData.csv') as csvfile:
         jazz_reader = csv.reader(csvfile)
         annotated_notes = []
         for note in jazz_reader:
             if note[4:-3] == [track, bassist, drummer, phrase, version]:
-                #print(note)
                 annotated_notes.append(note[1])
     return annotated_notes
 
 def analyze_clip(filename, processed_notes, i):
     clip_stats = []
-   
-    if i:
+
+    if i or i == 0:
         if i == 0:
             filename = filename[:-4] + "BassPick.wav"
         elif i == 1:
@@ -149,7 +147,7 @@ if __name__ == '__main__':
         clips = clips[0:0+args.test]
     if args.mixdown:
         clips = mixdown_clips
-    threshold = 1.0
+    threshold = 1.1
 
     if args.instrument:
         instrument_clips = []
@@ -174,11 +172,13 @@ if __name__ == '__main__':
 
             if args.mixdown:
                 for i in range(4):
+                    print("IIII:", i)
                     batch_result.append({
                         clip:
                         analyze_clip(clip, clean_result, i)
                     })
             else:
+
                 batch_result.append({
                     clip:
                     analyze_clip(clip, clean_result, i = False)
