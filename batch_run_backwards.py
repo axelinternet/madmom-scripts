@@ -149,7 +149,7 @@ if __name__ == '__main__':
         clips = clips[0:0+args.test]
     if args.mixdown:
         clips = mixdown_clips
-    threshold = 1.0
+    threshold = 0.1
 
     if args.instrument:
         instrument_clips = []
@@ -186,4 +186,4 @@ if __name__ == '__main__':
             
         save_results_to_file(batch_result, threshold)
         batch_result = []
-        threshold = threshold + 0.1
+        threshold = threshold - 0.01
